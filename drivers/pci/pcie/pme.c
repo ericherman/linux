@@ -347,7 +347,7 @@ static int pcie_pme_probe(struct pcie_device *srv)
 	pcie_pme_interrupt_enable(port, false);
 	pcie_clear_root_pme_status(port);
 
-	ret = request_irq(srv->irq, pcie_pme_irq, IRQF_SHARED, "PCIe PME", srv);
+	ret = request_irq(srv->irq, pcie_pme_irq, IRQF_SHARED, "PCIe_PME", srv);
 	if (ret) {
 		kfree(data);
 		return ret;
