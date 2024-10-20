@@ -421,8 +421,23 @@ static struct proc_dir_entry *__proc_create(struct proc_dir_entry **parent,
 					  nlink_t nlink)
 {
 	struct proc_dir_entry *ent = NULL;
-	const char *fn;
+	const char *fn, *c;
 	struct qstr qstr;
+
+	/* While not an error, an unusual name in /proc can be a nuisance. */
+	/* Filenames that have the '-' character as the first character can
+	 * easily cause problems with shell commands. */
+	if (name[0] == '-')
+		pr_info("Proc entry name '%s' starts with a '-'\n", name);
+	/* Filenames that have spaces (or worse) force careful escaping in
+	 * shell commands, too. */
+	for (c = name; *c; ++c) {
+		if (!isgraph(*c)) {
+			pr_info("Proc entry name '%s' contains 0x%02x'\n", name,
+				*c);
+			break;
+		}
+	}
 
 	if (xlate_proc_name(name, parent, &fn) != 0)
 		goto out;
