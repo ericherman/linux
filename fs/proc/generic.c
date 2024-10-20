@@ -394,8 +394,30 @@ static struct proc_dir_entry *__proc_create(struct proc_dir_entry **parent,
 					  nlink_t nlink)
 {
 	struct proc_dir_entry *ent = NULL;
-	const char *fn;
+	const char *fn, *c;
 	struct qstr qstr;
+
+	/* While not an error, an unusual name in /proc can be a nuisance. */
+	/* Filenames that have the '-' character as the first character can
+	 * easily cause problems with shell commands. */
+	if (*name == '-')
+		pr_info("Proc entry name '%s' starts with a '-'\n", name);
+	/* Filenames that have spaces (or worse) force careful escaping in
+	 * shell commands, too. POSIX describes a portable filename character
+	 * set which consists of the upper case ASCII characters 'A' through
+	 * 'Z', the lower case 'a' through 'z', the numerals '0' through '9',
+	 * and the individual characters '.', '_', and '-', none of which
+	 * should require escaping.
+	 *
+	 * https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap03.html#tag_03_282
+	 */
+	for (c = name; *c; ++c) {
+		if (!isalnum(*c) && *c != '.' && *c != '_' && *c != '-') {
+			pr_info("Proc entry name '%s' contains '%c'\n",
+				name, *c);
+			break;
+		}
+	}
 
 	if (xlate_proc_name(name, parent, &fn) != 0)
 		goto out;
