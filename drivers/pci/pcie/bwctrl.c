@@ -270,7 +270,7 @@ static int pcie_bwnotif_probe(struct pcie_device *srv)
 		port->link_bwctrl = data;
 
 		ret = request_irq(srv->irq, pcie_bwnotif_irq,
-				  IRQF_SHARED, "PCIe bwctrl", srv);
+				  IRQF_SHARED, "PCIe_bwctrl", srv);
 		if (ret) {
 			port->link_bwctrl = NULL;
 			return ret;
